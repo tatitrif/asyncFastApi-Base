@@ -1,0 +1,29 @@
+[tool.poetry]
+package-mode = false
+name = "app"
+version = "0.1.0"
+description = "Demo of async FastApi"
+
+[tool.poetry.dependencies]
+python = "^3.12"
+fastapi = "^0.115.5"
+uvicorn = "^0.32.0"
+pydantic-settings = "^2.6.1"
+pydantic = {extras = ["email"], version = "^2.9.2"}
+sqlalchemy = { extras = ["asyncio"], version = "^2.0.35" }
+aiosqlite = "^0.20.0"
+aiofiles = "^24.1.0"
+python-multipart = "^0.0.17"
+bcrypt = "^4.2.0"
+pyjwt = "^2.9.0"
+aiohttp = "^3.10.10"
+alembic = "^1.14.0"
+loguru = "^0.7.2"
+orjson = "^3.10.11"
+
+[tool.poetry.group.dev.dependencies]
+httpx = "^0.27.2"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

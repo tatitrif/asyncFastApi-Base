@@ -1,0 +1,19 @@
+version: "3.11"
+
+services:
+  backend: &backend
+    command: >
+      bash -c "uvicorn main:app --host 0.0.0.0"
+    ports:
+      - "8000:8000"
+    volumes:
+      - "./backend/app/db.sqlite3:/app/db.sqlite3"
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    healthcheck:
+      test: ["CMD-SHELL", "curl -s http://localhost:8000/api/v1/ping"]
+      start_period: 5s
+      timeout: 10s
+      interval: 5s
+      retries: 5
