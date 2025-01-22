@@ -1,7 +1,9 @@
+import time
 from contextlib import asynccontextmanager
 from typing import AsyncIterator
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import ORJSONResponse
 from loguru import logger
 
@@ -43,5 +45,27 @@ app = FastAPI(
         "filter": True,
     },
 )
+
+
+@app.middleware("http")
+async def add_process_time_header(request: Request, call_next):
+    start_time = time.time()
+    response = await call_next(request)
+    # time in seconds it took to process the request and generate the response
+    response.headers["X-Process-Time"] = str(time.time() - start_time)
+    return response
+
+
+# Set all CORS enabled origins
+if settings.BACKEND_CORS_ORIGINS:
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=[str(origin) for origin in settings.BACKEND_CORS_ORIGINS],
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
+        # custom headers that client in a browser to be able to see
+        expose_headers=["X-Process-Time"],
+    )
 
 app.include_router(routers.api_v1_router)

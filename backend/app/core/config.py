@@ -1,6 +1,7 @@
 from functools import lru_cache
 from pathlib import Path
 
+from pydantic import AnyHttpUrl
 from pydantic_settings import SettingsConfigDict, BaseSettings
 
 BASE_DIR = Path(__file__).resolve(strict=True).parent.parent
@@ -43,6 +44,9 @@ class Settings(BaseSettings):
     EMAIL_FROM: str = ""
     EMAIL_PASSWORD: str = ""
     FORGET_PASSWORD_LINK_EXPIRE_MINUTES: int = 10
+
+    # JSON-formatted list of origins
+    BACKEND_CORS_ORIGINS: list[AnyHttpUrl] = ["http://localhost:3000", "http://localhost:8001", ]
 
 
 @lru_cache
