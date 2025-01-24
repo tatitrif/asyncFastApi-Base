@@ -12,8 +12,6 @@ from services.helpers.security import (
 
 
 class AuthService(QueryService):
-    repository: UserRepository
-
     async def create_one(self, info_form: UserCreateSchema):
         if await UserRepository(self.session).find_one_or_none(
             username=info_form.username

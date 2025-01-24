@@ -46,7 +46,19 @@ class Settings(BaseSettings):
     FORGET_PASSWORD_LINK_EXPIRE_MINUTES: int = 10
 
     # JSON-formatted list of origins
-    BACKEND_CORS_ORIGINS: list[AnyHttpUrl] = ["http://localhost:3000", "http://localhost:8001", ]
+    BACKEND_CORS_ORIGINS: list[AnyHttpUrl] = [
+        "http://localhost:3000",
+        "http://localhost:8001",
+    ]
+
+    # Redis
+    REDIS_HOST: str = ""
+    REDIS_PASSWORD: str | None = None
+    REDIS_PORT: int = 6379
+    REDIS_DB: int = 0
+
+    # cache
+    CACHE_EXPIRE_SEC: int = 60 * 2
 
 
 @lru_cache

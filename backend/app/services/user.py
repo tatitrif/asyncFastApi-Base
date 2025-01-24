@@ -1,4 +1,7 @@
+from cache.base import AbstractCache
+from cache.cache import get_cache
 from core import exceptions
+from core.config import settings
 from repositories.user import UserRepository
 from schemas.auth import TokenUserData
 from schemas.base import IdResponse
@@ -6,12 +9,12 @@ from schemas.page import PageResponse, PageInfoResponse, PagedParamsSchema
 from schemas.user import UserUpdateSchema, UserResponse, UserFilterSchema
 from services.base import QueryService
 from services.helpers.page import paginate
-
 from services.helpers.upload import handle_file_upload
 
 
 class UserService(QueryService):
-    repository: UserRepository
+    cache: AbstractCache = get_cache()
+    exp: int = settings.CACHE_EXPIRE_SEC
 
     async def edit_me(
         self,
@@ -41,10 +44,16 @@ class UserService(QueryService):
         self,
         user_id: IdResponse,
     ):
-        entity = await UserRepository(self.session).find_one_or_none(id=user_id)
-        if entity:
-            return entity
-        raise exceptions.USER_EXCEPTION_NOT_FOUND_USER
+        if redis_user := await self.cache.get(f"user{user_id}"):
+            return redis_user
+
+        try:
+            db_user = await UserRepository(self.session).find_one_or_none(id=user_id)
+            await self.cache.set(f"user{user_id}", db_user, self.exp)
+            return db_user
+
+        except Exception:
+            raise exceptions.USER_EXCEPTION_NOT_FOUND_USER
 
     async def edit_one(
         self,

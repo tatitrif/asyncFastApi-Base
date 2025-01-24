@@ -1,5 +1,3 @@
-version: "3.11"
-
 services:
   backend: &backend
     command: >
@@ -11,9 +9,17 @@ services:
     build:
       context: ./backend
       dockerfile: Dockerfile
+    environment:
+      REDIS_HOST: "redis"
+      REDIS_DB: 0
+    env_file:
+      - "./backend/app/.env"
     healthcheck:
       test: ["CMD-SHELL", "curl -s http://localhost:8000/api/v1/ping"]
       start_period: 5s
       timeout: 10s
       interval: 5s
       retries: 5
+  redis:
+    image: redis:7.4.2-alpine
+    restart: always
