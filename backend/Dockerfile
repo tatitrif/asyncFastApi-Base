@@ -1,19 +1,38 @@
-FROM python:3.12.6-slim AS builder
+ARG PYTHON_VERSION=3.12.6
 
-# install dependencies system
-ARG BUILD_DEPS="curl"
-RUN apt-get update && apt-get install --no-install-recommends -y $BUILD_DEPS
+FROM python:$PYTHON_VERSION-slim AS builder
 
-RUN pip install --upgrade --no-cache-dir pip && \
-	pip install --no-cache-dir poetry
+WORKDIR /app
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    curl \
+    && rm -rf /var/lib/apt/lists
+
+# Устанавливаем Poetry
+RUN curl -sSL https://install.python-poetry.org | python -
+
+# Добавляем Poetry в PATH
+ENV PATH="/root/.local/bin:$PATH"
 
 # install dependencies
 COPY ./app/pyproject.toml .
 
-RUN poetry export -f requirements.txt --output requirements.txt --without-hashes  && \
-	pip install --no-cache-dir -r requirements.txt  --default-timeout=100 future
+RUN poetry config virtualenvs.create false && \
+    poetry install --only main --no-interaction --no-ansi --no-cache;
 
-# copy project
+# Финальный этап для Python, без Poetry.
+FROM python:$PYTHON_VERSION-slim
+
+WORKDIR /app
+
+ENV PYTHONUNBUFFERED=1
+
+# Копируем зависимости из builder-этапа
+COPY --from=builder /usr/local/lib/python3.12/site-packages /usr/local/lib/python3.12/site-packages
+COPY --from=builder /usr/local/bin /usr/local/bin
+
 COPY ./app .
+
+EXPOSE 8000
 
 RUN alembic revision --autogenerate && alembic upgrade head
