@@ -37,6 +37,9 @@ class UserService(QueryService):
                 raise exceptions.USER_EXCEPTION_CONFLICT_EMAIL_SIGNUP
         _obj = await UserRepository(self.session).edit_one(current_active_user.id, data)
         if _obj:
+            cache_key = f"user:{current_active_user.id}"
+            await self.cache.delete(cache_key)
+
             await self.session.commit()
             return UserResponse.model_validate(_obj)
 
@@ -44,16 +47,18 @@ class UserService(QueryService):
         self,
         user_id: IdResponse,
     ):
-        if redis_user := await self.cache.get(f"user{user_id}"):
+        cache_key = f"user:{user_id}"
+        if redis_user := await self.cache.get(cache_key):
             return redis_user
 
-        try:
-            db_user = await UserRepository(self.session).find_one_or_none(id=user_id)
-            await self.cache.set(f"user{user_id}", db_user, self.exp)
-            return db_user
+        db_user = await UserRepository(self.session).find_one_or_none(
+            **dict(id=user_id, is_deleted=0)
+        )
+        if db_user:
+            await self.cache.set(cache_key, db_user, self.exp)
 
-        except Exception:
-            raise exceptions.USER_EXCEPTION_NOT_FOUND_USER
+            return db_user
+        raise exceptions.USER_EXCEPTION_NOT_FOUND_USER
 
     async def edit_one(
         self,
@@ -62,7 +67,9 @@ class UserService(QueryService):
     ):
         data = update_form.model_dump()
         if update_form.email:
-            if await UserRepository(self.session).find_one(email=data["email"]):
+            if await UserRepository(self.session).find_one_or_none(
+                **dict(email=data["email"], is_deleted=0)
+            ):
                 raise exceptions.USER_EXCEPTION_CONFLICT_EMAIL_SIGNUP
 
         if not await UserRepository(self.session).find_one_or_none(id=user_id):
@@ -70,15 +77,23 @@ class UserService(QueryService):
 
         _obj = await UserRepository(self.session).edit_one(user_id, data)
         if _obj:
+            cache_key = f"user:{user_id}"
+            await self.cache.delete(cache_key)
+
             await self.session.commit()
             return UserResponse.model_validate(_obj)
 
-    async def delete_one(self, user_id: int):
-        if await UserRepository(self.session).find_one_or_none(id=user_id):
+    async def delete_one(self, user_id: IdResponse):
+        if await UserRepository(self.session).find_one_or_none(
+            **dict(id=user_id, is_deleted=0)
+        ):
             _obj = await UserRepository(self.session).edit_one(
                 _id=user_id, data=dict(is_deleted=1)
             )
             if _obj:
+                cache_key = f"user:{user_id}"
+                await self.cache.delete(cache_key)
+
                 await self.session.commit()
                 return {"detail": f"Deleted id={_obj.id}"}
 
@@ -91,6 +106,13 @@ class UserService(QueryService):
     ):
         filters = filter_schema.model_dump(exclude_none=True)
         limit_offset = limit_offset.model_dump(exclude_none=True)
+
+        cache_key_filters = ":".join(f"{k}:{v}" for k, v in filters.items())
+        cache_key_limit_offset = ":".join(f"{k}:{v}" for k, v in limit_offset.items())
+        cache_key = f"user:{cache_key_filters}:{cache_key_limit_offset}"
+
+        if redis_users := await self.cache.get(cache_key):
+            return redis_users
         page_entities = await UserRepository(self.session).find_by_page(
             **limit_offset, **filters
         )
@@ -98,7 +120,12 @@ class UserService(QueryService):
         pagination_info = paginate(**limit_offset, total=total)
         if not page_entities:
             raise exceptions.USER_EXCEPTION_NOT_FOUND_PAGE
-        return PageResponse(
+
+        db_users = PageResponse(
             page_info=PageInfoResponse(**pagination_info),
             page_data=[UserResponse.model_validate(entity) for entity in page_entities],
         )
+
+        await self.cache.set(cache_key, db_users, self.exp)
+
+        return db_users

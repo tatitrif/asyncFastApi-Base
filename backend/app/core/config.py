@@ -48,7 +48,7 @@ class Settings(BaseSettings):
     # JSON-formatted list of origins
     BACKEND_CORS_ORIGINS: list[AnyHttpUrl] = [
         "http://localhost:3000",
-        "http://localhost:8001",
+        "http://localhost:8000",
     ]
 
     # Redis

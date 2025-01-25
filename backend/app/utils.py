@@ -1,7 +1,13 @@
-class Singleton(type):
-    _instances = {}
+from functools import wraps
 
-    def __call__(cls, *args, **kwargs):
-        if cls not in cls._instances:
-            cls._instances[cls] = super(Singleton, cls).__call__(*args, **kwargs)
-        return cls._instances[cls]
+
+def singleton(cls):
+    """Декоратор синглтона"""
+
+    @wraps(cls)
+    def wrapper(*args, **kwargs):
+        if not hasattr(cls, "_instance"):
+            cls._instance = cls(*args, **kwargs)
+        return cls._instance
+
+    return wrapper

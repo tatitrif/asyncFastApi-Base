@@ -10,15 +10,16 @@ from sqlalchemy.ext.asyncio import (
     AsyncConnection,
 )
 
-from utils import Singleton
 from models.base import DeclarativeBaseModel
+from utils import singleton
 
 
 class DataBaseError(Exception):
     pass
 
 
-class DatabaseSessionManager(metaclass=Singleton):
+@singleton
+class DatabaseSessionManager:
     """Синглетон класс для базы данных с поддержкой асинхронности."""
 
     def __init__(self) -> None:

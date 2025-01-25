@@ -4,9 +4,11 @@ from typing import Any
 from loguru import logger
 from redis.asyncio import Redis, ConnectionPool
 
+from utils import singleton
 from .base import AbstractCache
 
 
+@singleton
 class RedisCache(AbstractCache):
     """Кэш данных в Redis."""
 

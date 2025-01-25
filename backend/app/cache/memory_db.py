@@ -5,6 +5,7 @@ from typing import TypedDict
 
 from loguru import logger
 
+from utils import singleton
 from .base import AbstractCache
 
 
@@ -13,6 +14,7 @@ class _ValueType(TypedDict):
     expires: datetime
 
 
+@singleton
 class InMemoryCache(AbstractCache):
     """Кэш данных в памяти."""
 

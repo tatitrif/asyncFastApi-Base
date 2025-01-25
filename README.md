@@ -7,8 +7,7 @@
 1. Создать переменные окружения:
 
 ```bash
-cd ./backend/
-cp .env.example ./app/.env
+cp ./backend/.env.example ./backend/app/.env
 ```
 
 2. Запустить проект:
