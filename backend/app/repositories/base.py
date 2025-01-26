@@ -91,7 +91,7 @@ class SQLAlchemyRepository(AbstractRepository):
         Returns:
              Список экземпляров модели.
         """
-        stmt = select(self.model).filter_by(**filter_dict)
+        stmt = select(self.model).filter_by(**filter_dict, is_deleted=0)
         res = await self.session.execute(stmt)
         return res.scalars().all()
 
@@ -112,7 +112,7 @@ class SQLAlchemyRepository(AbstractRepository):
 
         stmt = (
             select(self.model)
-            .filter_by(**filter_dict)
+            .filter_by(**filter_dict, is_deleted=0)
             .offset((offset - 1) * limit)
             .limit(limit)
         )
@@ -129,7 +129,7 @@ class SQLAlchemyRepository(AbstractRepository):
         Returns:
             Type[ModelType]: экземпляр модель БД.
         """
-        stmt = select(self.model).filter_by(**filter_dict)
+        stmt = select(self.model).filter_by(**filter_dict, is_deleted=0)
         res = await self.session.execute(stmt)
         return res.scalar_one()
 
@@ -143,7 +143,7 @@ class SQLAlchemyRepository(AbstractRepository):
         Returns:
             Type[ModelType]: экземпляр модель БД.
         """
-        stmt = select(self.model).filter_by(**filter_dict)
+        stmt = select(self.model).filter_by(**filter_dict, is_deleted=0)
         res = await self.session.execute(stmt)
         return res.scalar_one_or_none()
 
@@ -203,7 +203,7 @@ class SQLAlchemyRepository(AbstractRepository):
         Returns:
            Количество объектов
         """
-        stmt = select(func.count(self.model.id)).filter_by(**filter_dict)
+        stmt = select(func.count(self.model.id)).filter_by(**filter_dict, is_deleted=0)
         res: Result = await self.session.execute(stmt)
         return res.unique().scalars().first()
 

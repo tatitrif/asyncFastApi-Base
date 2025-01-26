@@ -1,4 +1,7 @@
+from cache.base import AbstractCache
+from cache.cache import get_cache
 from core import exceptions
+from core.config import settings
 from repositories.user import UserRepository
 from schemas.auth import TokenUserData
 from schemas.user import UserCreateSchema, UserCreateDBSchema, UserResponse
@@ -12,6 +15,9 @@ from services.helpers.security import (
 
 
 class AuthService(QueryService):
+    cache: AbstractCache = get_cache()
+    exp: int = settings.CACHE_EXPIRE_SEC
+
     async def create_one(self, info_form: UserCreateSchema):
         if await UserRepository(self.session).find_one_or_none(
             username=info_form.username
@@ -36,6 +42,7 @@ class AuthService(QueryService):
         )
         if _obj:
             await self.session.commit()
+            await self.cache.delete_namespace("user")
             return UserResponse.model_validate(_obj)
 
     async def authenticate_user_pwd(self, username, password):

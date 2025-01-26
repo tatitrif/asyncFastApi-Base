@@ -51,9 +51,7 @@ class UserService(QueryService):
         if redis_user := await self.cache.get(cache_key):
             return redis_user
 
-        db_user = await UserRepository(self.session).find_one_or_none(
-            **dict(id=user_id, is_deleted=0)
-        )
+        db_user = await UserRepository(self.session).find_one_or_none(id=user_id)
         if db_user:
             await self.cache.set(cache_key, db_user, self.exp)
 
@@ -67,9 +65,7 @@ class UserService(QueryService):
     ):
         data = update_form.model_dump()
         if update_form.email:
-            if await UserRepository(self.session).find_one_or_none(
-                **dict(email=data["email"], is_deleted=0)
-            ):
+            if await UserRepository(self.session).find_one_or_none(email=data["email"]):
                 raise exceptions.USER_EXCEPTION_CONFLICT_EMAIL_SIGNUP
 
         if not await UserRepository(self.session).find_one_or_none(id=user_id):
@@ -84,9 +80,7 @@ class UserService(QueryService):
             return UserResponse.model_validate(_obj)
 
     async def delete_one(self, user_id: IdResponse):
-        if await UserRepository(self.session).find_one_or_none(
-            **dict(id=user_id, is_deleted=0)
-        ):
+        if await UserRepository(self.session).find_one_or_none(id=user_id):
             _obj = await UserRepository(self.session).edit_one(
                 _id=user_id, data=dict(is_deleted=1)
             )
