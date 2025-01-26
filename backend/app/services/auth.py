@@ -42,7 +42,7 @@ class AuthService(QueryService):
         )
         if _obj:
             await self.session.commit()
-            await self.cache.delete_namespace("user")
+            await self.cache.delete_namespace("users")
             return UserResponse.model_validate(_obj)
 
     async def authenticate_user_pwd(self, username, password):

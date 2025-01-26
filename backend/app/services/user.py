@@ -103,7 +103,7 @@ class UserService(QueryService):
 
         cache_key_filters = ":".join(f"{k}:{v}" for k, v in filters.items())
         cache_key_limit_offset = ":".join(f"{k}:{v}" for k, v in limit_offset.items())
-        cache_key = f"user:{cache_key_filters}:{cache_key_limit_offset}"
+        cache_key = f"users:{cache_key_filters}:{cache_key_limit_offset}"
 
         if redis_users := await self.cache.get(cache_key):
             return redis_users
