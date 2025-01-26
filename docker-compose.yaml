@@ -1,14 +1,14 @@
 services:
   backend: &backend
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
     command: >
       bash -c "uvicorn main:app --host 0.0.0.0"
     ports:
       - "8000:8000"
     volumes:
       - "./backend/app/db.sqlite3:/app/db.sqlite3"
-    build:
-      context: ./backend
-      dockerfile: Dockerfile
     environment:
       REDIS_HOST: "redis"
       REDIS_DB: 0
@@ -20,6 +20,9 @@ services:
       timeout: 10s
       interval: 5s
       retries: 5
+    depends_on:
+      - redis
+
   redis:
     image: redis:7.4.2-alpine
     restart: always

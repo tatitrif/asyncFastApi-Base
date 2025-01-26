@@ -75,6 +75,10 @@ USER_EXCEPTION_NOT_FOUND_USER = HTTPException(
     status_code=status.HTTP_404_NOT_FOUND,
     detail="User not found",
 )
+USER_EXCEPTION_NOT_FOUND_USER_EMAIL = HTTPException(
+    status_code=status.HTTP_404_NOT_FOUND,
+    detail="Email not found",
+)
 USER_EXCEPTION_NOT_FOUND_PAGE = HTTPException(
     status_code=status.HTTP_404_NOT_FOUND,
     detail="User Page not found ",

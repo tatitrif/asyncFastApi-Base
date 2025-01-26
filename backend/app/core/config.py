@@ -43,6 +43,7 @@ class Settings(BaseSettings):
     # Email
     EMAIL_FROM: str = ""
     EMAIL_PASSWORD: str = ""
+    SMTP_SERVER: str = ""
     FORGET_PASSWORD_LINK_EXPIRE_MINUTES: int = 10
 
     # JSON-formatted list of origins

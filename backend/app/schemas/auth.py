@@ -1,6 +1,7 @@
 from pydantic import BaseModel
 
 from schemas.base import IdResponse
+from schemas.user import ValidEmail
 
 
 class TokenResponse(BaseModel):
@@ -9,7 +10,7 @@ class TokenResponse(BaseModel):
     token_type: str = "Bearer"
 
 
-class TokenUserData(IdResponse):
+class TokenUserData(IdResponse, ValidEmail):
     username: str
     is_superuser: bool = False
     is_deleted: bool = False

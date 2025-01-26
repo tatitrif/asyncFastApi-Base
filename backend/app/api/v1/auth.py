@@ -1,12 +1,17 @@
 from typing import Annotated
 
-from fastapi import Depends, status
+from fastapi import Depends, status, BackgroundTasks
 from fastapi.routing import APIRouter
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from core.session_manager import get_session
 from schemas.auth import TokenResponse
-from schemas.user import UserCreateSchema, UserResponse
+from schemas.user import (
+    UserCreateSchema,
+    UserResponse,
+    ValidEmail,
+    UserConfirmPasswords,
+)
 from services.auth import AuthService
 from services.helpers.security import OAuth2PasswordAndRefreshRequestForm, oauth2_scheme
 
@@ -68,3 +73,24 @@ async def logout(
         token: Данные токена.
     """
     return await AuthService(session).logout(token)
+
+
+@router.post(
+    "/forgot-password",
+)
+async def forgot_password(
+    session: Annotated[AsyncSession, Depends(get_session)],
+    email: Annotated[ValidEmail, Depends()],
+    background_tasks: BackgroundTasks,
+):
+    return await AuthService(session).forgot_password(email, background_tasks)
+
+
+@router.post("/reset-password/{token}")
+async def reset_password(
+    session: Annotated[AsyncSession, Depends(get_session)],
+    token: str,
+    pwd_data: Annotated[UserConfirmPasswords, Depends()],
+):
+    """Сброс пароля пользователя"""
+    await AuthService(session).reset_password(token, pwd_data)

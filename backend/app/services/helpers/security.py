@@ -75,6 +75,12 @@ def decode_token(data) -> dict:
     return jwt.decode(data, settings.SECRET_KEY, [settings.ALGORITHM])
 
 
+def confirm_pwd(password, confirmation_password):
+    if password != confirmation_password:
+        raise exceptions.USER_EXCEPTION_CONFIRMATION_PASSWORD
+    return hash_pwd(password)
+
+
 def create_token(data: dict, delta: timedelta) -> str:
     """Создает JWT токен.
     Args:
@@ -114,7 +120,7 @@ def create_jwt_tokens(
     return TokenResponse(access_token=access_token, refresh_token=refresh_token)
 
 
-def verify_token(token: str, token_type: str | None) -> TokenUserData:
+def verify_token(token: str, token_type: str | None = None) -> bool:
     """Проверяет токен на валидность.
     Если есть нет типа токена, то тип не проверяется.
     Args:
@@ -122,25 +128,26 @@ def verify_token(token: str, token_type: str | None) -> TokenUserData:
         token_type: Тип токена (access или refresh).
 
     Returns:
-        TokenUserData: Схема данных о пользователе.
+        bool: Схема данных о пользователе.
 
     Raises:
         CredentialsException: Если токен недействителен.
     """
     try:
         payload = decode_token(token)
-        if token_type:
-            payload_token_type: str = payload.get("token_type")
-            if not payload_token_type or payload_token_type != token_type:
-                raise exceptions.CREDENTIALS_EXCEPTION_TYPE
-        user = TokenUserData(**payload)
-        if user is None:
-            raise exceptions.CREDENTIALS_EXCEPTION_USER
+
         token_expiration: int = payload.get("exp", 0)
         if token_expiration < now_utc().timestamp():
             raise exceptions.CREDENTIALS_EXCEPTION_EXPIRED
 
-        return user
+        if token_type:
+            payload_token_type: str = payload.get("token_type")
+            if not payload_token_type or payload_token_type != token_type:
+                raise exceptions.CREDENTIALS_EXCEPTION_TYPE
+            user = TokenUserData(**payload)
+            if user is None:
+                raise exceptions.CREDENTIALS_EXCEPTION_USER
+        return True
     except jwt.PyJWTError:
         raise exceptions.CREDENTIALS_EXCEPTION_INVALID
 
@@ -162,3 +169,21 @@ def get_token_user(token, token_type: str | None = None) -> TokenUserData:
         payload = decode_token(token)
         user = TokenUserData(**payload)
         return user
+
+
+def get_token_email(token):
+    """Возвращает данные email из токена.
+
+    Args:
+        token: Закодированный токен.
+
+    Returns:
+        TokenUserData: Схема данных о пользователе.
+
+    Raises:
+        CredentialsException: Если токен недействителен.
+    """
+    if verify_token(token):
+        payload = decode_token(token)
+        email = payload.get("email")
+        return email
