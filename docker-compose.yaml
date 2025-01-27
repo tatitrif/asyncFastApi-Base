@@ -1,10 +1,7 @@
 services:
   backend: &backend
-    build:
-      context: ./backend
-      dockerfile: Dockerfile
-    command: >
-      bash -c "uvicorn main:app --host 0.0.0.0"
+    build: ./backend
+    command: uvicorn main:app --host 0.0.0.0
     ports:
       - "8000:8000"
     volumes:
@@ -12,6 +9,8 @@ services:
     environment:
       REDIS_HOST: "redis"
       REDIS_DB: 0
+      CELERY_BROKER_URL: redis://redis:6379/0
+      CELERY_RESULT_BACKEND: redis://redis:6379/0
     env_file:
       - "./backend/app/.env"
     healthcheck:
@@ -21,8 +20,32 @@ services:
       interval: 5s
       retries: 5
     depends_on:
-      - redis
+      redis:
+        condition: service_started
 
   redis:
     image: redis:7.4.2-alpine
     restart: always
+
+  worker:
+    build: ./backend
+    command: celery -A services.celery worker --loglevel=info -P gevent
+    environment:
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/0
+    depends_on:
+      - backend
+      - redis
+
+  dashboard:
+    build: ./backend
+    command: celery --broker=redis://redis:6379/0 flower --port=5555
+    ports:
+      - 5556:5555
+    environment:
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/0
+    depends_on:
+      - backend
+      - redis
+      - worker

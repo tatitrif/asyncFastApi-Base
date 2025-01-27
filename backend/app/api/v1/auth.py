@@ -1,6 +1,6 @@
 from typing import Annotated
 
-from fastapi import Depends, status, BackgroundTasks
+from fastapi import Depends, status
 from fastapi.routing import APIRouter
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -81,9 +81,8 @@ async def logout(
 async def forgot_password(
     session: Annotated[AsyncSession, Depends(get_session)],
     email: Annotated[ValidEmail, Depends()],
-    background_tasks: BackgroundTasks,
 ):
-    return await AuthService(session).forgot_password(email, background_tasks)
+    return await AuthService(session).forgot_password(email)
 
 
 @router.post("/reset-password/{token}")

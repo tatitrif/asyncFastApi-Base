@@ -1,4 +1,5 @@
 import smtplib
+from datetime import timedelta
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from functools import lru_cache
@@ -6,7 +7,31 @@ from functools import lru_cache
 from loguru import logger
 
 from core.config import settings
+from services.helpers.security import create_token
 from utils import singleton
+
+
+def send_reset_pwd(email: str):
+    """
+    Отправляет письмо об изменении пароля.
+    :param email: Email пользователя.
+    """
+    token = create_token(
+        data=dict(email=email),
+        delta=timedelta(minutes=settings.FORGET_PASSWORD_LINK_EXPIRE_MINUTES),
+    )
+    email_context = {
+        "link_expire_minutes": settings.FORGET_PASSWORD_LINK_EXPIRE_MINUTES,
+        "reset_link": f"http://localhost/reset-password/{token}",
+    }
+    subject = "Сброс пароля на сайте localhost"
+
+    body = """
+            <h3>Сброс пароля для сайта localhost</h3>
+            <p>{reset_link}</p>
+            <p>Ссылка будет доступна в течение {link_expire_minutes} минут.</p>
+            """.format(**email_context)
+    email_service.send_email(email, subject, body)
 
 
 @singleton
@@ -27,16 +52,7 @@ class EmailService:
         message.attach(MIMEText(body, "html"))
         return message.as_string()
 
-    @staticmethod
-    def _render_reset_body(context: dict) -> str:
-        """Рендер тела письма для сброса пароля"""
-        return """
-            <h3>Сброс пароля для сайта localhost</h3>
-            <p>{reset_link}</p>
-            <p>Ссылка будет доступна в течение {link_expire_minutes} минут.</p>
-        """.format(**context)
-
-    def send_email(self, email: str, subject: str, context: dict) -> None:
+    def send_email(self, email: str, subject: str, body: str) -> None:
         """Отправка письма для сброса пароля"""
         try:
             server = smtplib.SMTP_SSL(self._smtp_server, self._smtp_port, timeout=10)
@@ -45,7 +61,7 @@ class EmailService:
                 message = self._create_message(
                     email,
                     subject,
-                    self._render_reset_body(context),
+                    body,
                 )
                 server.sendmail(from_addr=self._from, to_addrs=[email], msg=message)
             finally:

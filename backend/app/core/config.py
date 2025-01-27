@@ -61,6 +61,8 @@ class Settings(BaseSettings):
     # cache
     CACHE_EXPIRE_SEC: int = 60 * 2
 
+    CELERY_BROKER_URL: str = ""
+
 
 @lru_cache
 def get_settings():

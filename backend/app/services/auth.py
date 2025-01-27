@@ -1,5 +1,3 @@
-from datetime import timedelta
-
 from cache.base import AbstractCache
 from cache.cache import get_cache
 from core import exceptions
@@ -7,16 +5,16 @@ from core.config import settings
 from repositories.user import UserRepository
 from schemas.auth import TokenUserData
 from schemas.user import UserCreateSchema, UserCreateDBSchema, UserResponse
+from services import celery
 from services.base import QueryService
+
 from services.helpers.security import (
     verify_pwd,
     get_token_user,
     create_jwt_tokens,
-    create_token,
     get_token_email,
     confirm_pwd,
 )
-from services.mailer import email_service
 
 
 class AuthService(QueryService):
@@ -88,25 +86,14 @@ class AuthService(QueryService):
         await self.session.commit()
         return {"detail": "Logout successful"}
 
-    async def forgot_password(self, email, background_tasks):
+    async def forgot_password(self, email):
         data = email.model_dump()
-        await self._identification_by_email(data["email"])
-        token = create_token(
-            data=dict(email=data["email"]),
-            delta=timedelta(minutes=settings.FORGET_PASSWORD_LINK_EXPIRE_MINUTES),
-        )
-        email_context = {
-            "link_expire_minutes": settings.FORGET_PASSWORD_LINK_EXPIRE_MINUTES,
-            "reset_link": f"http://localhost:8000/reset-password/{token}",
-        }
-        background_tasks.add_task(
-            email_service.send_email,
-            email=data["email"],
-            subject="Forgot password notification",
-            context=email_context,
-        )
+        data_email = data["email"]
+        await self._identification_by_email(data_email)
+        celery.send_reset_pwd_task.delay(data_email)
+
         return {
-            "detail": f"{token} Письмо отправлено на {email} от имени {settings.EMAIL_FROM}, "
+            "detail": f"Письмо отправлено на {data_email} от имени {settings.EMAIL_FROM}, "
             f"проверьте письмо на указанном вами адресе (также в папке Спам)",
             "success": True,
         }
