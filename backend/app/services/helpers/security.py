@@ -31,7 +31,7 @@ class OAuth2PasswordAndRefreshRequestForm(OAuth2PasswordRequestForm):
 
     def __init__(
         self,
-        grant_type: str = Form(default=None, regex="password|refresh_token"),
+        grant_type: str = Form(default=None, pattern="password|refresh_token"),
         username: str = Form(default=""),
         password: str = Form(default=""),
         refresh_token: str = Form(default=""),
@@ -125,31 +125,28 @@ def verify_token(token: str, token_type: str | None = None) -> bool:
     Если есть нет типа токена, то тип не проверяется.
     Args:
         token: Закодированный токен,
-        token_type: Тип токена (access или refresh).
+        token_type: Тип токена (access или refresh или None).
 
     Returns:
-        bool: Схема данных о пользователе.
+        bool: True токен действителен.
 
     Raises:
-        CredentialsException: Если токен недействителен.
+        CredentialsException: токен недействителен.
     """
     try:
         payload = decode_token(token)
-
-        token_expiration: int = payload.get("exp", 0)
-        if token_expiration < now_utc().timestamp():
-            raise exceptions.CREDENTIALS_EXCEPTION_EXPIRED
-
-        if token_type:
-            payload_token_type: str = payload.get("token_type")
-            if not payload_token_type or payload_token_type != token_type:
-                raise exceptions.CREDENTIALS_EXCEPTION_TYPE
-            user = TokenUserData(**payload)
-            if user is None:
-                raise exceptions.CREDENTIALS_EXCEPTION_USER
-        return True
-    except jwt.PyJWTError:
+    except jwt.ExpiredSignatureError:
+        raise exceptions.CREDENTIALS_EXCEPTION_EXPIRED
+    except jwt.InvalidTokenError:
         raise exceptions.CREDENTIALS_EXCEPTION_INVALID
+    if token_type:
+        payload_token_type: str = payload.get("token_type")
+        if not payload_token_type or payload_token_type != token_type:
+            raise exceptions.CREDENTIALS_EXCEPTION_TYPE
+        user = TokenUserData(**payload)
+        if user is None:
+            raise exceptions.CREDENTIALS_EXCEPTION_USER
+    return True
 
 
 def get_token_user(token, token_type: str | None = None) -> TokenUserData:

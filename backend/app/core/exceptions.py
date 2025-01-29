@@ -10,13 +10,13 @@ CREDENTIALS_EXCEPTION_INVALID = HTTPException(
 
 CREDENTIALS_EXCEPTION_TYPE = HTTPException(
     status_code=status.HTTP_401_UNAUTHORIZED,
-    detail="Could not validate type Token",
+    detail="Could not validate type token",
     headers={"WWW-Authenticate": "Bearer"},
 )
 
 CREDENTIALS_EXCEPTION_EXPIRED = HTTPException(
     status_code=status.HTTP_401_UNAUTHORIZED,
-    detail="Access Token expired",
+    detail="Token has expired",
     headers={"WWW-Authenticate": "Bearer"},
 )
 CREDENTIALS_EXCEPTION_USER = HTTPException(
@@ -26,7 +26,7 @@ CREDENTIALS_EXCEPTION_USER = HTTPException(
 )
 CREDENTIALS_EXCEPTION_USER_DB = HTTPException(
     status_code=status.HTTP_401_UNAUTHORIZED,
-    detail="User dont exist already in db",
+    detail="User don't exist already in db",
     headers={"WWW-Authenticate": "Bearer"},
 )
 CREDENTIALS_EXCEPTION_LOGOUT = HTTPException(
