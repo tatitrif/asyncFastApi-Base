@@ -26,7 +26,7 @@ router = APIRouter(prefix="/auth", tags=["auth"])
 )
 async def register_user(
     session: Annotated[AsyncSession, Depends(get_session)],
-    user_data: Annotated[UserCreateSchema, Depends()],
+    user_data: UserCreateSchema,
 ):
     """Регистрация нового пользователя.
 

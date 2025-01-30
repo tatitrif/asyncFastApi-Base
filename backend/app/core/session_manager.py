@@ -26,7 +26,9 @@ class DatabaseSessionManager:
         self._engine: Optional[AsyncEngine] = None
         self._session_maker: Optional[async_sessionmaker[AsyncSession]] = None
 
-    def init(self, host: str, engine_kwargs, session_kwargs) -> None:
+    def init(
+        self, host: str, engine_kwargs: dict = None, session_kwargs: dict = None
+    ) -> None:
         """Инициализирует соединение с базой данных."""
 
         engine_kwargs = engine_kwargs if engine_kwargs else {}
@@ -55,6 +57,13 @@ class DatabaseSessionManager:
                 logger.error("Database connection failed {}", e)
                 await connection.rollback()
                 raise
+
+    async def close(self) -> None:
+        if self._engine is None:
+            return
+        await self._engine.dispose()
+        self._engine = None
+        self._session_maker = None
 
     @asynccontextmanager
     async def session(self) -> AsyncIterator[AsyncSession]:

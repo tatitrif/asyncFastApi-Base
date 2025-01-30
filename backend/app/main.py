@@ -15,7 +15,7 @@ from core.session_manager import db_manager
 @asynccontextmanager
 async def lifespan(_: FastAPI) -> AsyncIterator[None]:
     """Lifespan event handles startup and shutdown events."""
-    logger.info("Start configuring server...")
+    logger.info("Server start")
     db_manager.init(
         settings.SQLALCHEMY_DATABASE_URI,
         {
@@ -26,14 +26,12 @@ async def lifespan(_: FastAPI) -> AsyncIterator[None]:
         },
         {
             "autoflush": settings.DB_SESSION_AUTOFLUSH,
-            "autocommit": settings.DB_SESSION_AUTOCOMMIT,
             "expire_on_commit": settings.DB_SESSION_EXPIRE_ON_COMMIT,
         },
     )
-
-    logger.info("Server started and configured successfully")
     yield
     logger.info("Server shut down")
+    await db_manager.close()
 
 
 app = FastAPI(

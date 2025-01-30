@@ -39,19 +39,6 @@ CREDENTIALS_EXCEPTION_LOGIN = HTTPException(
     detail="Login failed",
     headers={"WWW-Authenticate": "Bearer"},
 )
-
-USER_EXCEPTION_WRONG_PARAMETER = HTTPException(
-    status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-    detail="Wrong parameter",
-)
-USER_EXCEPTION_CONFLICT_USERNAME_SIGNUP = HTTPException(
-    status_code=status.HTTP_409_CONFLICT,
-    detail="Username already registered",
-)
-USER_EXCEPTION_CONFLICT_EMAIL_SIGNUP = HTTPException(
-    status_code=status.HTTP_409_CONFLICT,
-    detail="Email already exist",
-)
 USER_EXCEPTION_USERNAME = HTTPException(
     status_code=status.HTTP_400_BAD_REQUEST,
     detail="Username must consist of English characters or numbers",
@@ -71,9 +58,21 @@ USER_EXCEPTION_PASSWORD_WEAK = HTTPException(
     + "contain at least one lower, one upper case letter, one digit, and one special sign "
     + f"{PWD_SPECIAL_CHARS}",
 )
+USER_EXCEPTION_INACTIVE_USER = HTTPException(
+    status_code=status.HTTP_400_BAD_REQUEST,
+    detail="Inactive user",
+)
+EXCEPTION_UPLOAD_IMAGE = HTTPException(
+    status_code=status.HTTP_400_BAD_REQUEST,
+    detail="Upload image error",
+)
 USER_EXCEPTION_NOT_FOUND_USER = HTTPException(
     status_code=status.HTTP_404_NOT_FOUND,
     detail="User not found",
+)
+USER_EXCEPTION_PERMISSION_REQUIRED = HTTPException(
+    status_code=status.HTTP_403_FORBIDDEN,
+    detail="Superuser permission required",
 )
 USER_EXCEPTION_NOT_FOUND_USER_EMAIL = HTTPException(
     status_code=status.HTTP_404_NOT_FOUND,
@@ -81,22 +80,21 @@ USER_EXCEPTION_NOT_FOUND_USER_EMAIL = HTTPException(
 )
 USER_EXCEPTION_NOT_FOUND_PAGE = HTTPException(
     status_code=status.HTTP_404_NOT_FOUND,
-    detail="User Page not found ",
-)
-USER_EXCEPTION_INACTIVE_USER = HTTPException(
-    status_code=status.HTTP_400_BAD_REQUEST,
-    detail="Inactive user",
-)
-USER_EXCEPTION_PERMISSION_REQUIRED = HTTPException(
-    status_code=status.HTTP_403_FORBIDDEN,
-    detail="Superuser permission required",
-)
-
-EXCEPTION_UPLOAD_IMAGE = HTTPException(
-    status_code=status.HTTP_400_BAD_REQUEST,
-    detail="Upload image error",
+    detail="User Page not found",
 )
 EXCEPTION_ID_NOT_FOUND = HTTPException(
     status_code=status.HTTP_404_NOT_FOUND,
     detail="Not Found",
+)
+USER_EXCEPTION_WRONG_PARAMETER = HTTPException(
+    status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+    detail="Wrong parameter",
+)
+USER_EXCEPTION_CONFLICT_USERNAME_SIGNUP = HTTPException(
+    status_code=status.HTTP_409_CONFLICT,
+    detail="Username already registered",
+)
+USER_EXCEPTION_CONFLICT_EMAIL_SIGNUP = HTTPException(
+    status_code=status.HTTP_409_CONFLICT,
+    detail="Email already exist",
 )

@@ -1,3 +1,5 @@
+from sqlalchemy.exc import IntegrityError
+
 from cache.base import AbstractCache
 from cache.cache import get_cache
 from core import exceptions
@@ -7,7 +9,6 @@ from schemas.auth import TokenUserData
 from schemas.user import UserCreateSchema, UserCreateDBSchema, UserResponse
 from services import celery
 from services.base import QueryService
-
 from services.helpers.security import (
     verify_pwd,
     get_token_user,
@@ -22,29 +23,20 @@ class AuthService(QueryService):
     exp: int = settings.CACHE_EXPIRE_SEC
 
     async def create_one(self, info_form: UserCreateSchema):
-        if await UserRepository(self.session).find_one_or_none(
-            username=info_form.username
-        ):
+        try:
+            password = confirm_pwd(info_form.password, info_form.confirmation_password)
+            user = info_form.model_dump()
+            user["hashed_password"] = password
+            _obj = await UserRepository(self.session).add_one(
+                UserCreateDBSchema(**user).__dict__
+            )
+            if _obj:
+                await self.session.commit()
+                await self.session.refresh(_obj)
+                return UserResponse.model_validate(_obj)
+
+        except IntegrityError:
             raise exceptions.USER_EXCEPTION_CONFLICT_USERNAME_SIGNUP
-
-        if info_form.email:
-            if await UserRepository(self.session).find_one_or_none(
-                email=info_form.email
-            ):
-                raise exceptions.USER_EXCEPTION_CONFLICT_EMAIL_SIGNUP
-
-        password = confirm_pwd(info_form.password, info_form.confirmation_password)
-
-        user = info_form.model_dump()
-        user["hashed_password"] = password
-
-        _obj = await UserRepository(self.session).add_one(
-            UserCreateDBSchema(**user).__dict__
-        )
-        if _obj:
-            await self.session.commit()
-            await self.cache.delete_namespace("users")
-            return UserResponse.model_validate(_obj)
 
     async def login(self, form_data):
         if form_data.grant_type == "refresh_token":
