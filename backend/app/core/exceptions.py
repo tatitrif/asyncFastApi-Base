@@ -24,11 +24,7 @@ CREDENTIALS_EXCEPTION_USER = HTTPException(
     detail="Token dont have an user",
     headers={"WWW-Authenticate": "Bearer"},
 )
-CREDENTIALS_EXCEPTION_USER_DB = HTTPException(
-    status_code=status.HTTP_401_UNAUTHORIZED,
-    detail="User don't exist already in db",
-    headers={"WWW-Authenticate": "Bearer"},
-)
+
 CREDENTIALS_EXCEPTION_LOGOUT = HTTPException(
     status_code=status.HTTP_400_BAD_REQUEST,
     detail="Logout failed",

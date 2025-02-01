@@ -26,11 +26,6 @@ class ValidUsername(BaseModel):
 class UserSchema(ValidEmail, ValidUsername):
     fullname: str | None = None
 
-    @field_validator("username")
-    def validate_lower(cls, value):
-        if value:
-            return value.lower()
-
 
 class UserDBPasswords(BaseModel):
     hashed_password: str
@@ -42,7 +37,6 @@ class UserConfirmPasswords(BaseModel):
 
     @model_validator(mode="after")
     def check_passwords_match(self) -> Self:
-        print(self.password, self.confirmation_password)
         if self.password != self.confirmation_password:
             raise exceptions.USER_EXCEPTION_CONFIRMATION_PASSWORD
         return self

@@ -1,6 +1,6 @@
 from typing import Annotated
 
-from fastapi import APIRouter, UploadFile, File
+from fastapi import APIRouter
 from fastapi import Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -43,18 +43,17 @@ async def read_user_me(
 async def update_me(
     session: Annotated[AsyncSession, Depends(get_session)],
     current_user: Annotated[UserResponse, Depends(get_current_active_user)],
-    data: Annotated[UserUpdateSchema, Depends()],
-    image_file: UploadFile | str | None = File(None, media_type="image/*"),
+    data: UserUpdateSchema,
 ):
     """Редактирование своих данных.
 
     Args:
         session: Сессия БД,
         current_user: Текущий пользователь,
-        data: Данные для обновления,
-        image_file: Загрузка фото пользователя.
+        data: Данные для обновления.
     """
-    return await UserService(session).edit_me(current_user, data, image_file)
+
+    return await UserService(session).edit_me(current_user, data)
 
 
 @router.get(
@@ -104,7 +103,7 @@ async def get_many(
 async def update_one_by_id(
     session: Annotated[AsyncSession, Depends(get_session)],
     user_id: int,
-    data: UserUpdateSchema = Depends(),
+    data: UserUpdateSchema,
 ):
     """Редактирование Админом данных пользователя.
 

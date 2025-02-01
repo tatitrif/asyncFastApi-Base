@@ -52,7 +52,7 @@ class AuthService(QueryService):
             )
             tokens = create_jwt_tokens(TokenUserData.model_validate(user.to_dict()))
         if not user:
-            raise exceptions.CREDENTIALS_EXCEPTION_USER_DB
+            raise exceptions.USER_EXCEPTION_WRONG_PARAMETER
         _obj = await UserRepository(self.session).edit_one(
             user.id, {"refresh_token": tokens.refresh_token}
         )
@@ -69,7 +69,7 @@ class AuthService(QueryService):
         )
 
         if not user_db or not user_db.refresh_token:
-            raise exceptions.CREDENTIALS_EXCEPTION_USER_DB
+            raise exceptions.USER_EXCEPTION_WRONG_PARAMETER
         _obj = await UserRepository(self.session).edit_one(
             user_db.id, {"refresh_token": None}
         )
@@ -94,10 +94,12 @@ class AuthService(QueryService):
         email = get_token_email(token)
         user_db = await self._identification_by_email(email)
         password = confirm_pwd(pwd_data.password, pwd_data.confirmation_password)
-        await UserRepository(self.session).edit_one(
+        _obj = await UserRepository(self.session).edit_one(
             user_db.id, dict(hashed_password=password)
         )
-        return await self.session.commit()
+        await self.session.commit()
+        await self.session.refresh(_obj)
+        return {"detail": "Success", "success": True}
 
     async def _identification_by_username(self, username):
         if user := await UserRepository(self.session).find_one_or_none(

@@ -1,6 +1,7 @@
 from typing import Annotated
 
 from fastapi import Depends, status
+from fastapi import Form
 from fastapi.routing import APIRouter
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -80,7 +81,7 @@ async def logout(
 )
 async def forgot_password(
     session: Annotated[AsyncSession, Depends(get_session)],
-    email: Annotated[ValidEmail, Depends()],
+    email: ValidEmail = Form(...),
 ):
     return await AuthService(session).forgot_password(email)
 
@@ -89,7 +90,7 @@ async def forgot_password(
 async def reset_password(
     session: Annotated[AsyncSession, Depends(get_session)],
     token: str,
-    pwd_data: Annotated[UserConfirmPasswords, Depends()],
+    pwd_data: UserConfirmPasswords,
 ):
     """Сброс пароля пользователя"""
     await AuthService(session).reset_password(token, pwd_data)

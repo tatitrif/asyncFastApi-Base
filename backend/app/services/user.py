@@ -9,7 +9,6 @@ from schemas.page import PageResponse, PageInfoResponse, PagedParamsSchema
 from schemas.user import UserUpdateSchema, UserResponse, UserFilterSchema
 from services.base import QueryService
 from services.helpers.page import paginate
-from services.helpers.upload import handle_file_upload
 
 
 class UserService(QueryService):
@@ -20,16 +19,8 @@ class UserService(QueryService):
         self,
         current_active_user: TokenUserData,
         update_form: UserUpdateSchema,
-        image_file: str,
     ):
         data = update_form.model_dump(exclude_none=True)
-        if image_file:
-            try:
-                file_name = await handle_file_upload(image_file)
-                data["image"] = file_name
-            except ValueError:
-                raise exceptions.EXCEPTION_UPLOAD_IMAGE
-
         if update_form.email:
             if await UserRepository(self.session).find_one_or_none(
                 email=update_form.email
@@ -41,6 +32,7 @@ class UserService(QueryService):
             await self.cache.delete(cache_key)
 
             await self.session.commit()
+            await self.session.refresh(_obj)
             return UserResponse.model_validate(_obj)
 
     async def find_one(
@@ -77,6 +69,7 @@ class UserService(QueryService):
             await self.cache.delete(cache_key)
 
             await self.session.commit()
+            await self.session.refresh(_obj)
             return UserResponse.model_validate(_obj)
 
     async def delete_one(self, user_id: IdResponse):
@@ -89,6 +82,7 @@ class UserService(QueryService):
                 await self.cache.delete(cache_key)
 
                 await self.session.commit()
+                await self.session.refresh(_obj)
                 return {"detail": f"Deleted id={_obj.id}"}
 
         raise exceptions.USER_EXCEPTION_NOT_FOUND_USER
@@ -123,3 +117,22 @@ class UserService(QueryService):
         await self.cache.set(cache_key, db_users, self.exp)
 
         return db_users
+
+    async def edit_superuser(
+        self,
+        user_id: IdResponse,
+        is_superuser: bool,
+    ):
+        if not await UserRepository(self.session).find_one_or_none(id=user_id):
+            raise exceptions.USER_EXCEPTION_NOT_FOUND_USER
+
+        _obj = await UserRepository(self.session).edit_one(
+            user_id, dict(is_superuser=is_superuser)
+        )
+        if _obj:
+            cache_key = f"user:{user_id}"
+            await self.cache.delete(cache_key)
+
+            await self.session.commit()
+            await self.session.refresh(_obj)
+            return UserResponse.model_validate(_obj)
