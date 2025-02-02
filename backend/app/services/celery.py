@@ -24,5 +24,5 @@ def perform_async_task(coro):
 
 @celery.task(name="send_reset_pwd_task", ignore_result=True)
 def send_reset_pwd_task(email: str):
-    """Задача отправки ссылки для сброса пароля"""
+    """Задача отправки ссылки для сброса пароля."""
     send_reset_pwd(email)

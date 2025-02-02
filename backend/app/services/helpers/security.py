@@ -17,7 +17,7 @@ def now_utc():
 
 # ref : https://github.com/tiangolo/fastapi/issues/2031
 class CustomOAuth2PasswordBearer(OAuth2PasswordBearer):
-    """Модифицированная аутентификация"""
+    """Модифицированная аутентификация."""
 
     async def __call__(self, request: Request = None, websocket: WebSocket = None):
         return await super().__call__(request or websocket)
@@ -27,7 +27,7 @@ oauth2_scheme = CustomOAuth2PasswordBearer(tokenUrl=f"{settings.API_V1_STR}/auth
 
 
 class OAuth2PasswordAndRefreshRequestForm(OAuth2PasswordRequestForm):
-    """Модификация формы OAuth2PasswordBearer"""
+    """Модификация формы OAuth2PasswordBearer."""
 
     def __init__(
         self,
@@ -150,7 +150,8 @@ def verify_token(token: str, token_type: str | None = None) -> bool:
 
 
 def get_token_user(token, token_type: str | None = None) -> TokenUserData:
-    """Возвращает данные пользователя из токена.
+    """
+    Возвращает данные пользователя из токена.
 
     Args:
         token: Закодированный токен.
@@ -169,7 +170,8 @@ def get_token_user(token, token_type: str | None = None) -> TokenUserData:
 
 
 def get_token_email(token):
-    """Возвращает данные email из токена.
+    """
+    Возвращает данные email из токена.
 
     Args:
         token: Закодированный токен.

@@ -23,7 +23,8 @@ async def read_user_me(
     session: Annotated[AsyncSession, Depends(get_session)],
     current_user: Annotated[TokenUserData, Depends(get_current_active_user)],
 ):
-    """Данные текущего пользователя.
+    """
+    Данные текущего пользователя.
 
     Args:
         session: Сессия БД,
@@ -45,7 +46,8 @@ async def update_me(
     current_user: Annotated[UserResponse, Depends(get_current_active_user)],
     data: UserUpdateSchema,
 ):
-    """Редактирование своих данных.
+    """
+    Редактирование своих данных.
 
     Args:
         session: Сессия БД,
@@ -65,7 +67,8 @@ async def get_one(
     session: Annotated[AsyncSession, Depends(get_session)],
     user_id: int,
 ):
-    """Возвращает данных пользователя.
+    """
+    Возвращает данных пользователя.
 
     Args:
         session: Сессия БД,
@@ -84,7 +87,8 @@ async def get_many(
     limit_offset: Annotated[PagedParamsSchema, Depends()],
     filter_schema: Annotated[UserFilterSchema, Depends()],
 ):
-    """Возвращает список пользователей.
+    """
+    Возвращает список пользователей.
 
     Args:
         session: Сессия БД,
@@ -105,7 +109,8 @@ async def update_one_by_id(
     user_id: int,
     data: UserUpdateSchema,
 ):
-    """Редактирование Админом данных пользователя.
+    """
+    Редактирование Админом данных пользователя.
 
     Args:
         session: Сессия БД,
@@ -124,7 +129,8 @@ async def delete_by_id(
     session: Annotated[AsyncSession, Depends(get_session)],
     user_id: int,
 ):
-    """Удаление (скрытие) Админом данных пользователя.
+    """
+    Удаление (скрытие) Админом данных пользователя.
 
     Args:
         session: Сессия БД,

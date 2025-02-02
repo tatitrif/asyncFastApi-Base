@@ -8,7 +8,9 @@ BASE_DIR = Path(__file__).resolve(strict=True).parent.parent
 
 
 class Settings(BaseSettings):
-    """Application settings.
+    """
+    Application settings.
+
     These parameters can be configured with environment variables.
     """
 

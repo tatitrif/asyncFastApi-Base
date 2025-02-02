@@ -12,8 +12,8 @@ UpdateSchemaType = TypeVar("UpdateSchemaType", bound=BaseModel)
 
 
 class AbstractService(ABC):
-    """Abstract class to be used as a parent class for all services,
-    defining the methods that each service should implement."""
+    """Abstract class to be used as a parent class for all services, defining the
+    methods that each service should implement."""
 
     @abstractmethod
     def find_all(self):
@@ -22,20 +22,18 @@ class AbstractService(ABC):
 
     @abstractmethod
     def find_one(self, object_id):
-        """Get an object from the repository that is
-        represented by the service, by ID."""
+        """Get an object from the repository that is represented by the service, by
+        ID."""
         pass
 
     @abstractmethod
     def create_one(self, obj):
-        """Create a new object on the repository that is
-        represented by the service."""
+        """Create a new object on the repository that is represented by the service."""
         pass
 
     @abstractmethod
     def edit_one(self, object_id: int, obj):
-        """Update an object on the repository that is represented
-        by the service."""
+        """Update an object on the repository that is represented by the service."""
         pass
 
     @abstractmethod

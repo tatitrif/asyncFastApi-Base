@@ -1,5 +1,6 @@
 from functools import wraps
-from typing import Callable, Any
+from typing import Any
+from collections.abc import Callable
 
 from loguru import logger
 
@@ -14,7 +15,7 @@ class RedisConnectionError(Exception):
 
 
 def get_cache() -> AbstractCache:
-    """Возвращает кэш в зависимости от настроек приложения"""
+    """Возвращает кэш в зависимости от настроек приложения."""
     if settings.REDIS_HOST:
         if RedisCache is None:
             logger.error("Redis is not initialized")
@@ -41,9 +42,9 @@ def cached(
 
     :param timeout: Время жизни кэш.
     :param key: Ключ кэша, если не указан будет взято имя функции.
-    :param variable_positions: Список позиций аргументов, которые будут добавлены в ключ через str().
+    :param variable_positions: Список позиций аргументов, которые будут добавлены в ключ
+        через str().
     :param delimiter: Разделитель позиций аргументов.
-
     :return: Декоратор функции.
     """
 

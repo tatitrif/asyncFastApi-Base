@@ -2,7 +2,7 @@ from functools import wraps
 
 
 def singleton(cls):
-    """Декоратор синглтона"""
+    """Декоратор синглтона."""
 
     @wraps(cls)
     def wrapper(*args, **kwargs):

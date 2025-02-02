@@ -1,4 +1,5 @@
-from typing import Callable, Awaitable, Any
+from typing import Any
+from collections.abc import Callable, Awaitable
 
 import pytest
 from faker import Faker
@@ -40,9 +41,7 @@ async def client(engine) -> AsyncClient:
 def registered_user(
     fake: Faker,
 ) -> Callable[[AsyncClient, UserCreateSchema], Awaitable[Any]]:
-    """
-    Factory fixture to registered user
-    """
+    """Factory fixture to registered user."""
 
     async def _registered(
         client: AsyncClient,
@@ -79,9 +78,7 @@ def registered_user(
 def authenticate_client(
     registered_user: Callable, fake: Faker
 ) -> Callable[[AsyncClient, UserResponse], Awaitable[AsyncClient]]:
-    """
-    Factory fixture to authenticate
-    """
+    """Factory fixture to authenticate."""
 
     async def _authenticate_client(
         client: AsyncClient,

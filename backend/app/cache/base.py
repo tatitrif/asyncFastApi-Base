@@ -22,5 +22,5 @@ class AbstractCache(ABC):
 
     @abstractmethod
     async def delete_namespace(self, prefix: str) -> None:
-        """Удаляет все ключи с указанным префиксом"""
+        """Удаляет все ключи с указанным префиксом."""
         pass

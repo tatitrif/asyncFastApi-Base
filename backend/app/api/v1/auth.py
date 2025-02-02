@@ -29,7 +29,8 @@ async def register_user(
     session: Annotated[AsyncSession, Depends(get_session)],
     user_data: UserCreateSchema,
 ):
-    """Регистрация нового пользователя.
+    """
+    Регистрация нового пользователя.
 
     Args:
         session: Сессия БД,
@@ -50,7 +51,8 @@ async def login_for_tokens(
     session: Annotated[AsyncSession, Depends(get_session)],
     form_data: Annotated[OAuth2PasswordAndRefreshRequestForm, Depends()],
 ):
-    """Аутентификация, создание токенов и обновление.
+    """
+    Аутентификация, создание токенов и обновление.
 
     Args:
         session: Сессия БД,
@@ -67,7 +69,8 @@ async def logout(
     session: Annotated[AsyncSession, Depends(get_session)],
     token: Annotated[str, Depends(oauth2_scheme)],
 ):
-    """Выход пользователя из учетной запись и удаление токена.
+    """
+    Выход пользователя из учетной запись и удаление токена.
 
     Args:
         session: Сессия БД,
@@ -92,5 +95,5 @@ async def reset_password(
     token: str,
     pwd_data: UserConfirmPasswords,
 ):
-    """Сброс пароля пользователя"""
+    """Сброс пароля пользователя."""
     await AuthService(session).reset_password(token, pwd_data)

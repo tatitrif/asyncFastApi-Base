@@ -14,6 +14,7 @@ from utils import singleton
 def send_reset_pwd(email: str):
     """
     Отправляет письмо об изменении пароля.
+
     :param email: Email пользователя.
     """
     token = create_token(
@@ -36,7 +37,7 @@ def send_reset_pwd(email: str):
 
 @singleton
 class EmailService:
-    """Сервис для отправки почты"""
+    """Сервис для отправки почты."""
 
     def __init__(self):
         self._from = settings.EMAIL_FROM
@@ -53,7 +54,7 @@ class EmailService:
         return message.as_string()
 
     def send_email(self, email: str, subject: str, body: str) -> None:
-        """Отправка письма для сброса пароля"""
+        """Отправка письма для сброса пароля."""
         try:
             server = smtplib.SMTP_SSL(self._smtp_server, self._smtp_port, timeout=10)
             try:
@@ -72,7 +73,7 @@ class EmailService:
 
 @lru_cache
 def get_email_service() -> EmailService:
-    """Получение сервиса для отправки почты"""
+    """Получение сервиса для отправки почты."""
     return EmailService()
 
 

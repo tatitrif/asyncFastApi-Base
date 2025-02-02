@@ -1,5 +1,5 @@
 from contextlib import asynccontextmanager
-from typing import AsyncIterator, Optional
+from collections.abc import AsyncIterator
 
 from loguru import logger
 from sqlalchemy.ext.asyncio import (
@@ -23,8 +23,8 @@ class DatabaseSessionManager:
     """Синглетон класс для базы данных с поддержкой асинхронности."""
 
     def __init__(self) -> None:
-        self._engine: Optional[AsyncEngine] = None
-        self._session_maker: Optional[async_sessionmaker[AsyncSession]] = None
+        self._engine: AsyncEngine | None = None
+        self._session_maker: async_sessionmaker[AsyncSession] | None = None
 
     def init(
         self, host: str, engine_kwargs: dict = None, session_kwargs: dict = None
@@ -42,7 +42,8 @@ class DatabaseSessionManager:
 
     @asynccontextmanager
     async def connect(self) -> AsyncIterator[AsyncConnection]:
-        """Создание асинхронного подключения.
+        """
+        Создание асинхронного подключения.
 
         В качестве контекста возвращает объект `AsyncConnection`.
         В случае возникновения исключения внутри контекста,
@@ -67,7 +68,8 @@ class DatabaseSessionManager:
 
     @asynccontextmanager
     async def session(self) -> AsyncIterator[AsyncSession]:
-        """Создание асинхронной сессии.
+        """
+        Создание асинхронной сессии.
 
         В качестве контекста возвращает объект `AsyncSession`.
         В случае возникновения исключения внутри контекста,
@@ -97,7 +99,7 @@ db_manager: DatabaseSessionManager = DatabaseSessionManager()
 
 
 async def get_session() -> AsyncIterator[AsyncSession]:
-    """Возвращает сеанс базы данных для использования с fastapi Depends"""
+    """Возвращает сеанс базы данных для использования с fastapi Depends."""
     # noinspection PyArgumentList
     async with db_manager.session() as session:
         yield session

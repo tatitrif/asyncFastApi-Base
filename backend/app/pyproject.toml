@@ -1,8 +1,7 @@
 [tool.poetry]
 package-mode = false
-name = "app"
+name = "asyncFastApi-BaseProject"
 version = "0.1.0"
-description = "Demo of async FastApi"
 
 [tool.poetry.dependencies]
 python = "^3.12"

@@ -5,5 +5,5 @@ router = APIRouter(tags=["health"])
 
 @router.get("/ping", status_code=status.HTTP_200_OK)
 async def status():
-    """Проверка работоспособности"""
+    """Проверка работоспособности."""
     return {"detail": "pong"}

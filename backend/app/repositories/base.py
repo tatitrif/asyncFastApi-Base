@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
-from typing import TypeVar, Type, Sequence
+from typing import TypeVar
+from collections.abc import Sequence
 
 from pydantic import BaseModel
 from sqlalchemy import insert, select, update, delete, func, RowMapping, Result
@@ -45,14 +46,16 @@ class AbstractRepository(ABC):
 
 
 class SQLAlchemyRepository(AbstractRepository):
-    """Этот класс реализует базовый интерфейс для работы с базой данных.
-    Упрощает работу с аннотациями типов.
-    Поддерживает все классические операции CRUD, а также пользовательские запросы.
+    """
+    Этот класс реализует базовый интерфейс для работы с базой данных.
+
+    Упрощает работу с аннотациями типов. Поддерживает все классические операции CRUD, а
+    также пользовательские запросы.
     """
 
-    model: Type[ModelType]
-    create_schema: Type[CreateSchemaType]
-    update_schema: Type[UpdateSchemaType]
+    model: type[ModelType]
+    create_schema: type[CreateSchemaType]
+    update_schema: type[UpdateSchemaType]
 
     def __init__(self, session: AsyncSession):
         """
@@ -63,8 +66,9 @@ class SQLAlchemyRepository(AbstractRepository):
         """
         self.session: AsyncSession = session
 
-    async def add_one(self, data: CreateSchemaType) -> Type[ModelType]:
-        """Создание объекта
+    async def add_one(self, data: CreateSchemaType) -> type[ModelType]:
+        """
+        Создание объекта.
 
         Args:
             data (CreateSchemaType): Схема вводимых данных.
@@ -82,8 +86,9 @@ class SQLAlchemyRepository(AbstractRepository):
         return res.scalars().all()
 
     async def find_all(self, **filter_dict) -> Sequence[ModelType] | None:
-        """Асинхронно находит и возвращает все экземпляры модели,
-         удовлетворяющие указанным критериям.
+        """
+        Асинхронно находит и возвращает все экземпляры модели, удовлетворяющие указанным
+        критериям.
 
         Args:
             **filter_dict: Критерии фильтрации в виде именованных параметров.
@@ -98,8 +103,9 @@ class SQLAlchemyRepository(AbstractRepository):
     async def find_by_page(
         self, limit: int, offset: int = 0, **filter_dict
     ) -> Sequence[ModelType] | None:
-        """Асинхронно находит и возвращает все экземпляры модели постранично,
-         удовлетворяющие указанным критериям.
+        """
+        Асинхронно находит и возвращает все экземпляры модели постранично,
+        удовлетворяющие указанным критериям.
 
         Args:
             offset: Критерии номера страницы,
@@ -119,9 +125,9 @@ class SQLAlchemyRepository(AbstractRepository):
         res: Result = await self.session.execute(stmt)
         return res.unique().scalars().all()
 
-    async def find_one(self, **filter_dict) -> Type[ModelType] | None:
+    async def find_one(self, **filter_dict) -> type[ModelType] | None:
         """
-        Находит один объект
+        Находит один объект.
 
         Args:
            **filter_dict: Критерии фильтрации в виде именованных параметров.
@@ -133,9 +139,9 @@ class SQLAlchemyRepository(AbstractRepository):
         res = await self.session.execute(stmt)
         return res.scalar_one()
 
-    async def find_one_or_none(self, **filter_dict) -> Type[ModelType] | None:
+    async def find_one_or_none(self, **filter_dict) -> type[ModelType] | None:
         """
-        Находит только один объект или ничего
+        Находит только один объект или ничего.
 
         Args:
            **filter_dict: Критерии фильтрации в виде именованных параметров.
@@ -147,9 +153,9 @@ class SQLAlchemyRepository(AbstractRepository):
         res = await self.session.execute(stmt)
         return res.scalar_one_or_none()
 
-    async def edit_one(self, _id: int, data) -> Type[ModelType]:
+    async def edit_one(self, _id: int, data) -> type[ModelType]:
         """
-        Обновление объекта
+        Обновление объекта.
 
         Args:
             _id: объект.
@@ -174,9 +180,9 @@ class SQLAlchemyRepository(AbstractRepository):
         res = await self.session.execute(stmt)
         return res.scalars().all()
 
-    async def delete_one(self, _id: int) -> Type[ModelType]:
+    async def delete_one(self, _id: int) -> type[ModelType]:
         """
-        Удаление объекта
+        Удаление объекта.
 
         Args:
             _id: объект.
@@ -195,7 +201,7 @@ class SQLAlchemyRepository(AbstractRepository):
 
     async def count(self, **filter_dict) -> int:
         """
-        Подсчет объекта в запросе
+        Подсчет объекта в запросе.
 
         Args:
              **filter_dict: Критерии фильтрации в виде именованных параметров.

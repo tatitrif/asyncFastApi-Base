@@ -1,5 +1,5 @@
 from datetime import timedelta
-from typing import Callable
+from collections.abc import Callable
 
 from faker import Faker
 from fastapi import status
@@ -11,7 +11,7 @@ from tests import test_settings
 
 
 async def test_signup(client: AsyncClient, fake: Faker) -> None:
-    """Test user registration"""
+    """Test user registration."""
 
     password = fake.password()
     username = fake.user_name()
@@ -57,7 +57,7 @@ async def test_signup(client: AsyncClient, fake: Faker) -> None:
 async def test_token(
     client: AsyncClient, fake: Faker, registered_user: Callable
 ) -> None:
-    """Test user login"""
+    """Test user login."""
 
     username = fake.user_name()
     password = fake.password()
@@ -95,7 +95,7 @@ async def test_token(
 
 
 async def test_logout(client: AsyncClient, authenticate_client: Callable) -> None:
-    """Test user logout"""
+    """Test user logout."""
 
     response = await client.post("/auth/logout")
 
