@@ -1,6 +1,7 @@
 import datetime as datetime
 import re
 
+import orjson
 from sqlalchemy import false, Boolean, func, TIMESTAMP, MetaData
 from sqlalchemy.ext.asyncio import AsyncAttrs
 from sqlalchemy.orm import (
@@ -91,3 +92,7 @@ class DeclarativeBaseModel(AsyncAttrs, DeclarativeBase):
         columns = class_mapper(self.__class__).columns
         # Возвращаем словарь всех колонок и их значений
         return {column.key: getattr(self, column.key) for column in columns}
+
+    def to_json(self) -> orjson:
+        """Преобразует объект в SQLAlchemy orjson."""
+        return orjson.dumps(self.to_dict())

@@ -1,11 +1,9 @@
-import pickle
-from typing import Any
-
+import orjson
 from loguru import logger
 from redis.asyncio import Redis, ConnectionPool
 
 from utils import singleton
-from .base import AbstractCache
+from .base import AbstractCache, SchemaType
 
 
 @singleton
@@ -31,18 +29,18 @@ class RedisCache(AbstractCache):
         )
         self._redis = Redis(connection_pool=self._pool)
 
-    async def get(self, key: str) -> Any | None:
+    async def get(self, key: str) -> SchemaType | None:
         logger.debug(f"Get from cache {key}", key=key)
 
         value = await self._redis.get(key)
         if value is not None:
-            return pickle.loads(value)
+            return orjson.loads(value)
         return None
 
-    async def set(self, key: str, value: Any, expire: int) -> None:
+    async def set(self, key: str, value: SchemaType, expire: int) -> None:
         logger.debug(f"Set to cache {key}", key=key)
 
-        await self._redis.set(key, pickle.dumps(value), ex=expire)
+        await self._redis.set(key, value.to_json(), ex=expire)
 
     async def delete(self, key: str) -> None:
         logger.debug(f"Delete_ from cache {key}", key=key)

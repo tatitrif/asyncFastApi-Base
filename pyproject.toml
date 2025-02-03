@@ -1,0 +1,19 @@
+[tool.poetry]
+name = "asyncFastApi-Base"
+version = "0.1.0"
+readme = "README.md"
+authors = ["Tati Trif","yatatitrif@yandex.com"]
+description = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.12"
+
+[tool.poetry.group.dev.dependencies]
+pre-commit = "^4.1.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.bandit]
+exclude_dirs = ["tests"]

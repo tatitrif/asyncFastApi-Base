@@ -73,3 +73,9 @@ repos:
             "--wrap-summaries=88",
           ]
         types: [python]
+
+  - repo: https://github.com/pycqa/bandit
+    rev: 1.7.9
+    hooks:
+      - id: bandit
+        args: ["-c", "pyproject.toml", "-r"]

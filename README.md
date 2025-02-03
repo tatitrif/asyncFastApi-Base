@@ -1,6 +1,6 @@
-# asyncFastApi-BaseProject
+# Async FastApi Project
 
-Проект представляет собой демонстрационный сервис FastAPI, разработанный с использованием Clean Architecture.
+Шаблон FastAPI для запуска новых проектов.
 
 ## Быстрый старт
 

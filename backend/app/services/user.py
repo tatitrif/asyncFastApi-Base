@@ -40,14 +40,14 @@ class UserService(QueryService):
         user_id: IdResponse,
     ):
         cache_key = f"user:{user_id}"
-        if redis_user := await self.cache.get(cache_key):
-            return redis_user
+        if cache_user := await self.cache.get(cache_key):
+            return cache_user
 
-        db_user = await UserRepository(self.session).find_one_or_none(id=user_id)
-        if db_user:
-            await self.cache.set(cache_key, db_user, self.exp)
+        _obj = await UserRepository(self.session).find_one_or_none(id=user_id)
+        if _obj:
+            await self.cache.set(cache_key, _obj, self.exp)
 
-            return db_user
+            return UserResponse.model_validate(_obj)
         raise exceptions.USER_EXCEPTION_NOT_FOUND_USER
 
     async def edit_one(
@@ -99,8 +99,8 @@ class UserService(QueryService):
         cache_key_limit_offset = ":".join(f"{k}:{v}" for k, v in limit_offset.items())
         cache_key = f"users:{cache_key_filters}:{cache_key_limit_offset}"
 
-        if redis_users := await self.cache.get(cache_key):
-            return redis_users
+        if cache_users := await self.cache.get(cache_key):
+            return cache_users
         page_entities = await UserRepository(self.session).find_by_page(
             **limit_offset, **filters
         )
