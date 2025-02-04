@@ -1,9 +1,19 @@
 services:
-  backend: &backend
+  nginx:
+    image: nginx:1.27.3
+    container_name: nginx
+    depends_on:
+      - backend
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/conf.d:/etc/nginx/conf.d:ro
+    restart: always
+
+  backend:
     build: ./backend
     command: uvicorn main:app --host 0.0.0.0
-    ports:
-      - "8000:8000"
     volumes:
       - "./backend/app/db.sqlite3:/app/db.sqlite3"
     environment:
