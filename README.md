@@ -1,4 +1,4 @@
-![example event parameter](https://github.com/github/docs/actions/workflows/main.yml/badge.svg?event=push)
+![example event parameter](https://github.com/tatitrif/asyncFastApi-Base/actions/workflows/pytest.yml/badge.svg?event=push)
 
 # Async FastApi Project
 
