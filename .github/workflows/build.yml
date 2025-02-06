@@ -48,6 +48,5 @@ jobs:
       #----------------------------------------------
       - name: Run tests
         run: |
-          cachedPath=backend/app/.venv/bin/activate
-          source cachedPath
+          source .venv/bin/activate
           pytest backend/app/tests/
