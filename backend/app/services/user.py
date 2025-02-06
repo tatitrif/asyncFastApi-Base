@@ -1,3 +1,5 @@
+from loguru import logger
+
 from cache.base import AbstractCache
 from cache.cache import get_cache
 from core import exceptions
@@ -43,11 +45,11 @@ class UserService(QueryService):
         if cache_user := await self.cache.get(cache_key):
             return cache_user
 
-        _obj = await UserRepository(self.session).find_one_or_none(id=user_id)
-        if _obj:
-            await self.cache.set(cache_key, _obj, self.exp)
-
-            return UserResponse.model_validate(_obj)
+        user_db = await UserRepository(self.session).find_one_or_none(id=user_id)
+        if user_db:
+            user_db = UserResponse.model_validate(user_db)
+            await self.cache.set(cache_key, user_db, self.exp)
+            return UserResponse.model_validate(user_db)
         raise exceptions.USER_EXCEPTION_NOT_FOUND_USER
 
     async def edit_one(
@@ -94,13 +96,21 @@ class UserService(QueryService):
     ):
         filters = filter_schema.model_dump(exclude_none=True)
         limit_offset = limit_offset.model_dump(exclude_none=True)
-
+        logger.info(limit_offset)
         cache_key_filters = ":".join(f"{k}:{v}" for k, v in filters.items())
         cache_key_limit_offset = ":".join(f"{k}:{v}" for k, v in limit_offset.items())
-        cache_key = f"users:{cache_key_filters}:{cache_key_limit_offset}"
+        cache_key_users = f"users:{cache_key_filters}:{cache_key_limit_offset}"
+        cache_key_page_info = f"page_info:{cache_key_filters}:{cache_key_limit_offset}"
 
-        if cache_users := await self.cache.get(cache_key):
-            return cache_users
+        cache_users = await self.cache.get(cache_key_users)
+        cache_page_info = await self.cache.get(cache_key_page_info)
+
+        if cache_users and cache_page_info:
+            return PageResponse(
+                page_info=cache_page_info,
+                page_data=cache_users,
+            )
+
         page_entities = await UserRepository(self.session).find_by_page(
             **limit_offset, **filters
         )
@@ -109,14 +119,17 @@ class UserService(QueryService):
         if not page_entities:
             raise exceptions.USER_EXCEPTION_NOT_FOUND_PAGE
 
-        db_users = PageResponse(
-            page_info=PageInfoResponse(**pagination_info),
-            page_data=[UserResponse.model_validate(entity) for entity in page_entities],
+        db_users = [UserResponse.model_validate(entity) for entity in page_entities]
+
+        db_page_info = PageInfoResponse(**pagination_info)
+
+        await self.cache.set(cache_key_users, db_users, self.exp)
+        await self.cache.set(cache_key_page_info, db_page_info, self.exp)
+
+        return PageResponse(
+            page_info=db_page_info,
+            page_data=db_users,
         )
-
-        await self.cache.set(cache_key, db_users, self.exp)
-
-        return db_users
 
     async def edit_superuser(
         self,

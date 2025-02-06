@@ -83,7 +83,7 @@ async def get_one(
     summary="View user data by filters",
 )
 async def get_many(
-    session: Annotated[AsyncSession, Depends(get_session, use_cache=True)],
+    session: Annotated[AsyncSession, Depends(get_session)],
     limit_offset: Annotated[PagedParamsSchema, Depends()],
     filter_schema: Annotated[UserFilterSchema, Depends()],
 ):

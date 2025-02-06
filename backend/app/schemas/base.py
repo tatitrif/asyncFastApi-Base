@@ -1,14 +1,7 @@
 from datetime import datetime
 from typing import Annotated
 
-from pydantic import BaseModel, Field, PlainSerializer, ConfigDict
-
-custom_datetime = Annotated[
-    datetime,
-    PlainSerializer(
-        lambda _datetime: _datetime.strftime("%d/%m/%Y, %H:%M:%S"), return_type=str
-    ),
-]
+from pydantic import BaseModel, Field, ConfigDict
 
 
 class IdResponse(BaseModel):
@@ -16,6 +9,6 @@ class IdResponse(BaseModel):
 
 
 class OutMixin(IdResponse):
-    created_at: Annotated[custom_datetime, Field(description="Создано в")]
+    created_at: Annotated[datetime, Field(description="CreatedAt")]
 
     model_config = ConfigDict(from_attributes=True)
