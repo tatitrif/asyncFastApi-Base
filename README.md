@@ -1,3 +1,5 @@
+![example event parameter](https://github.com/github/docs/actions/workflows/main.yml/badge.svg?event=push)
+
 # Async FastApi Project
 
 Шаблон FastAPI для запуска новых проектов.
