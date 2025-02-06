@@ -39,7 +39,7 @@ jobs:
       # install dependencies if cache does not exist
       #----------------------------------------------
       - name: Install dependencies
-        #if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
+        if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
         run: poetry install -C backend/app --no-interaction --no-root
       #----------------------------------------------
 
@@ -50,4 +50,3 @@ jobs:
         run: |
           source backend/app/.venv/bin/activate
           pytest backend/app/tests/
-          coverage report
