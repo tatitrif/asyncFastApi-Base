@@ -32,8 +32,13 @@ class InMemoryCache(AbstractCache):
     async def set(self, key: str, value: SchemaType, timeout: int) -> None:
         logger.debug(f"Set to cache {key}", key=key)
 
+        if isinstance(value, list):
+            data = [_.model_dump() for _ in value]
+        else:
+            data = value.model_dump()
+
         self._cache[key] = {
-            "data": value.to_dict(),
+            "data": data,
             "expires": datetime.now() + timedelta(seconds=timeout),
         }
 

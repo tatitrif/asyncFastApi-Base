@@ -1,17 +1,20 @@
+from fastapi import Query
 from pydantic import BaseModel, Field
+
+from schemas.user import UserResponse
 
 
 class PagedParamsSchema(BaseModel):
-    limit: int | None = Field(
-        10,
+    limit: int | None = Query(
+        default=10,
         ge=1,
         description="Page size",
         alias="page[size]",
     )
-    offset: int | None = Field(
-        1,
+    offset: int | None = Query(
+        default=1,
         ge=1,
-        description="Page number",
+        description="Start page number",
         alias="page[number]",
     )
 
@@ -32,4 +35,4 @@ class PageInfoResponse(BaseModel):
 
 class PageResponse(BaseModel):
     page_info: PageInfoResponse
-    page_data: list
+    page_data: list[UserResponse]

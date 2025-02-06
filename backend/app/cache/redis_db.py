@@ -40,7 +40,15 @@ class RedisCache(AbstractCache):
     async def set(self, key: str, value: SchemaType, expire: int) -> None:
         logger.debug(f"Set to cache {key}", key=key)
 
-        await self._redis.set(key, value.to_json(), ex=expire)
+        if isinstance(value, list):
+            data = [_.model_dump() for _ in value]
+        else:
+            data = value.model_dump()
+
+        if isinstance(data, dict) or isinstance(data, list):
+            data = orjson.dumps(data)
+
+        await self._redis.set(key, data, ex=expire)
 
     async def delete(self, key: str) -> None:
         logger.debug(f"Delete_ from cache {key}", key=key)
