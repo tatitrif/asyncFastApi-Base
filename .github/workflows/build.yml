@@ -40,6 +40,7 @@ jobs:
       #----------------------------------------------
       - name: Install dependencies
         #if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
+        if: steps.cache-deps.cache-hit != 'true'
         run: poetry install -C backend/app --no-interaction --no-root
       #----------------------------------------------
 
