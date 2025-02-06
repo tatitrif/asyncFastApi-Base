@@ -48,6 +48,6 @@ jobs:
       #----------------------------------------------
       - name: Run tests
         run: |
-          export PYTHONPATH=$PWD/backend/app/.venv/bin/activate
-          #source backend/app/.venv/bin/activate
-          pytest
+          cachedPath=backend/app/.venv/bin/activate
+          source cachedPath
+          pytest backend/app/tests/
